@@ -26,28 +26,41 @@ MySQL server health check
 docker inspect --format "{{.State.Health.Status}}" "$(docker-compose ps -q mysql)"
 ```
 
-### Layout
+### Result
 
-You get a virtual network 10.62.62.0/24 with on it three services:
+You'll get a virtual network 10.62.62.0/24 with on it three services:
 
 1. A mysql service on 10.62.62.2 (mysql)
 2. A kestrel service runing the .NET 8 API at 10.62.62.3 on port 8062 (public 8062)
 3. An apache2 service hosting the UI at 10.62.62.4 on port 80 (public 80)
 
+The API and the UI will also be available on the docker hosts's public IP on pors 80 and 8062, unless 
+you choose to change this.
+
 ## Configuration
 
-In the .env file you find the following configurable settings. These are explained quickly here:
+In the .env file you find the following configurable settings. These are explained in the defualt .env
+file, but you must change the following values before you compose for the first time:
 
-* **CS_SQL_FOLDER**
-  Path to the volume for the MYSQL files, relative to this file, can be absolute
-* **CS_ASSETS_FOLDER**
-  Path to the local assets folder, relative to this file, can be absolute
-* **MYSQL_ROOT_PASSWORD**
-  The root password used on the MySQL database. Will be used ot create the MYSQL database if this does
-  not exist already.
-* **DB_NAME**
-  The name of the database to be used.
-* **DB_USER**
-  The username used by the API server to connect to the database
-* **DB_PASSWORD**
-  The password used for the DB_USER
+* MYSQL_ROOT_PASSWORD
+* DB_PASSWORD
+* CS_INITIAL_PASSWORD_HASH
+* CS_BACKUP_SECRET
+
+Failure to change these will allow knowledgable users to connect to these services with the default
+password(s), which is of course not desirable.
+
+## First use
+
+Browse to http://localhost:8062/swagger to verify the API is up, check the logs and test an endpoint to
+verify the SQL database connection works.
+
+Use ```docker compose logs centaurscoresui``` or ```docker compose logs centaurscoresapi``` or even ```docker compose logs mysql``` to check logs.
+
+Use ```docker compose exec centaurscoresapoi bash``` to get a shell, this is especially useful for the MYSQL container to DB maintenance.
+
+Browse to http://localhost:80/cs to verify that the solution works
+
+Log in using the csadmin user with the password you created when changing the CS_INITIAL_PASSWORD_HASH.
+
+Create a list, select a list, create a competition, create a match => GO.
