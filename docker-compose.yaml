@@ -1,0 +1,84 @@
+networks:
+  centaur-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.62.62.0/24
+
+volumes:
+  mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CS_SQL_FOLDER:-./mysql_data}
+  assets:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CS_ASSETS_FOLDER:-./assets}
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-centaur
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DB_NAME:-CentaurScores}
+      MYSQL_USER: ${DB_USER:-csuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-changeme}
+    command: --bind-address=10.62.62.2
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      centaur-net:
+        ipv4_address: 10.62.62.2
+    ports:
+      - "3306:${CS_MYSQL_PORT:-3306}"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      retries: 1      
+
+  centaurscoresapi:
+    build:
+      context: ./centaurscoresapi
+      dockerfile: Dockerfile
+    container_name: centaurscoresapi
+    restart: always
+    environment:
+      DB_SERVER: mysql
+      DB_NAME: ${DB_NAME:-CentaurScores}
+      DB_USER: ${DB_USER:-csuser}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      CS_API_PORT: ${CS_API_PORT:-8062}
+      CS_MYSQL_PORT: ${CS_MYSQL_PORT:-3306}
+      CS_INITIAL_PASSWORD_HASH: ${CS_INITIAL_PASSWORD_HASH:-abcd24bee570a67c39d332322e28ca612a6e41b5f4faac151392fed4fbc9b4c6391e} # defaults to password
+    networks:
+      centaur-net:
+        ipv4_address: 10.62.62.3
+    ports:
+      - "8062:${CS_API_PORT:-8062}"
+    depends_on:
+      - mysql
+
+  centaurscoresui:
+    build:
+      context: ./centaurscoresui
+      dockerfile: Dockerfile
+    container_name: centaurscoresui
+    restart: always
+    volumes:
+      - assets:/var/www/csassets
+    environment:
+      CS_API_PORT: ${CS_API_PORT:-8062}
+      CS_HTTP_PORT: ${CS_API_PORT:-80}
+    networks:
+      centaur-net:
+        ipv4_address: 10.62.62.4
+    ports:
+      - "80:${CS_HTTP_PORT:-80}"
+    depends_on:
+      - centaurscoresapi
