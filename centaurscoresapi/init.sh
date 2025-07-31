@@ -25,6 +25,7 @@ cp -R /tmp/release/* $LOCAL_PATH
 chown -R root:root $LOCAL_PATH
 chmod -R a+rX $LOCAL_PATH
 
+# this sets the default csadmin password to password, just change it!
 cat <<EOT > $LOCAL_PATH/appsettings.Production.json
 {
   "Logging": {
