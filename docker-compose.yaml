@@ -30,6 +30,7 @@ services:
       MYSQL_DATABASE: ${DB_NAME:-CentaurScores}
       MYSQL_USER: ${DB_USER:-csuser}
       MYSQL_PASSWORD: ${DB_PASSWORD:-changeme}
+      MYSQL_TCP_PORT: ${CS_MYSQL_PORT:-3306}
     command: --bind-address=10.62.62.2
     volumes:
       - mysql_data:/var/lib/mysql
@@ -37,7 +38,7 @@ services:
       centaur-net:
         ipv4_address: 10.62.62.2
     ports:
-      - "${CS_MYSQL_PORT:-3306}:3306"
+      - "${CS_MYSQL_PORT:-3306}:${CS_MYSQL_PORT:-3306}"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "--silent"]
       retries: 1      
@@ -55,6 +56,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-changeme}
       CS_API_PORT: ${CS_API_PORT:-8062}
       CS_MYSQL_PORT: ${CS_MYSQL_PORT:-3306}
+      CS_BACKUP_SECRET: ${CS_BACKUP_SECRET:-0000}
       CS_INITIAL_PASSWORD_HASH: ${CS_INITIAL_PASSWORD_HASH:-abcd24bee570a67c39d332322e28ca612a6e41b5f4faac151392fed4fbc9b4c6391e} # defaults to password
     networks:
       centaur-net:

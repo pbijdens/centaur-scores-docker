@@ -49,6 +49,7 @@ AddType application/vnd.android.package-archive .apk
 </Location>
 EOT
 
+# If you want to automatically 'fix' your mounted assets, also fix this file.
 # mv $LOCAL_PATH/assets/configuration.json $LOCAL_PATH/assets/configuration.json.bak
 # cat $LOCAL_PATH/assets/configuration.json.bak | sed "s/:8062/:$CS_API_PORT/g" > $LOCAL_PATH/assets/configuration.json
 
