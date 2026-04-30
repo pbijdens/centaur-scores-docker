@@ -11,13 +11,13 @@ installation can be cusotmized by editing the contents of these local folders.
 Start the containers with:
 
 ```sh
-docker compose up --build -d
+docker compose --env-file your-environment.env -p cs-instance1 up -d --build
 ```
 
 Tear down the containers with
 
 ```sh
-docker compose down
+docker compose --env-file your-environment.env -p cs-instance1 down
 ```
 
 MySQL server health check
